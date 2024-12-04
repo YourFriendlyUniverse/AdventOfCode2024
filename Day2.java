@@ -41,6 +41,35 @@ public class Day2 {
                 safeReports++;
                 dampenedSafeReports++;
             }
+            else{
+                for (int j = 0; j < level.length; j++){
+                    safe = true;
+                    int[] newLevel = new int[level.length - 1];
+                    int index = 0;
+                    // makes new int array with one number removed
+                    for (int k = 0; k < level.length; k++){
+                        if (k != j){
+                            newLevel[index] = level[k];
+                            index++;
+                        }
+                    }
+                    for (int k = 1; k < newLevel.length; k++){
+                        // checks to see if the level is still not safe
+                        if (increasing){
+                            if (newLevel[k - 1] + 1 > newLevel[k] || newLevel[k - 1] + 3 < newLevel[k]){
+                                safe = false;
+                            }
+                        }
+                        else if (newLevel[k - 1] - 1 < newLevel[k] || newLevel[k - 1] - 3 > newLevel[k]){
+                            safe = false;
+                        }
+                    }
+                    if (safe){
+                        dampenedSafeReports++;
+                        break;
+                    }
+                }
+            }
         }
 
         System.out.println("Part 1: " + safeReports);
