@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class Day11 {
@@ -15,31 +16,64 @@ public class Day11 {
             stones.add(Long.parseLong(i));
         }
 
-        for (int i = 0; i < 75; i++) {
-            // Anything faster than ArrayList?
-            ArrayList<Long> newStones = new ArrayList<>();
-            //Focus on this for loop here, code in here runs the most BY FAR
-            for (int num = 0; num < stones.toArray().length; num++) {
-                if (stones.get(num) == 0) {
-                    newStones.add(1L);
-                }
-                else if (((int) Math.log10(stones.get(num)) + 1) % 2 == 0) {
-                    //OPTIMIZE THIS PART (conversion to string, then back is not very healthy)
-                    String number = stones.get(num) + "";
-                    newStones.add(Long.parseLong(number.substring(0, (number.length() / 2))));
-                    newStones.add(Long.parseLong(number.substring(number.length() / 2)));
-                }
-                else {
-                    newStones.add(stones.get(num) * 2024);
-                }
+        // part 1
+//        for (int i = 0; i < 25; i++) {
+//            ArrayList<Long> newStones = new ArrayList<>();
+//            for (int num = 0; num < stones.toArray().length; num++) {
+//                if (stones.get(num) == 0) {
+//                    newStones.add(1L);
+//                }
+//                else if (((int) Math.log10(stones.get(num)) + 1) % 2 == 0) {
+//                    String number = stones.get(num) + "";
+//                    newStones.add(Long.parseLong(number.substring(0, (number.length() / 2))));
+//                    newStones.add(Long.parseLong(number.substring(number.length() / 2)));
+//                }
+//                else {
+//                    newStones.add(stones.get(num) * 2024);
+//                }
+//            }
+//            stones.clear();
+//            stones.addAll(newStones);
+//            System.out.println(i);
+//        }
+
+        System.out.println("Part 1: " + (stones.toArray().length));
+
+        // the key will denote the number on the stone(s), and the value will be how many of those stones exist
+        HashMap<Long, Long> numOfStones = new HashMap<>();
+
+        // HashMap initialization of values
+        for (Long i : stones){
+            if (numOfStones.containsKey(i)){
+                numOfStones.put(i, numOfStones.get(i) + 1);
             }
-            stones.clear();
-            //Is there a way to optimize moving the lists?
-            stones.addAll(newStones);
-            System.out.println(i);
+            numOfStones.put(i, 1L);
         }
 
-        System.out.println("Solution: " + (stones.toArray().length));
+        HashMap<Long, Long> newNumOfStones = new HashMap<>();
+
+        for (int i = 0; i < 25; i++){
+            numOfStones.replaceAll((k, v) -> {
+                if (k == 0){
+                    replaceStonesNumber(newNumOfStones, 1, v);
+                }
+                else if ((int) (Math.log10(k) + 1) % 2 == 0){
+                    long num1 = (long) (k / Math.pow(10, (long) (Math.log10(k) + 1) / 2));
+                    long num2 = (long) (k - (num1 * Math.pow(10, (long) (Math.log10(k) + 1) / 2)));
+                    replaceStonesNumber(newNumOfStones, num1, v);
+                    replaceStonesNumber(newNumOfStones, num2, v);
+                }
+                else{
+                    replaceStonesNumber(newNumOfStones, k * 2024, v);
+                }
+                return v;
+            });
+            numOfStones = (HashMap<Long, Long>) newNumOfStones.clone();
+            newNumOfStones.clear();
+        }
+        System.out.println(numOfStones);
+        System.out.println(countNumOfStones(numOfStones));
+
     }
 
     public static ArrayList<String> getFileData(String fileName) {
@@ -57,6 +91,23 @@ public class Day11 {
         catch (FileNotFoundException e) {
             return fileData;
         }
+    }
+
+    public static void replaceStonesNumber(HashMap<Long, Long> stones, long num, long origAmount){
+        if (stones.get(num) != null){
+            stones.put(num, stones.get(num) + 1);
+        }
+        else{
+            stones.put(num, origAmount);
+        }
+    }
+
+    public static long countNumOfStones(HashMap<Long, Long> stones){
+        long amountOfStones = 0;
+        for (long i : stones.values()){
+            amountOfStones += i;
+        }
+        return amountOfStones;
     }
 
 }
