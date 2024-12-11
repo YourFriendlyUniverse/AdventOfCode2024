@@ -7,7 +7,6 @@ public class Day1 {
     public static void main(String[] args) {
 
         ArrayList<String> fileData = getFileData("src/InputFile");
-        // you now have a list of Strings from the file "InputFile"
         int[] firstList = new int[fileData.toArray().length];
         int[] secondList = new int[fileData.toArray().length];
 

@@ -20,14 +20,18 @@ public class Day3 {
         for (int i = 0; i < fileData.toArray().length; i++){
             Matcher m = p.matcher(fileData.get(i));
             Matcher enabledM = enabledP.matcher(fileData.get(i));
+
+            // gets all mul() strings within the input
             while (m.find()) {
                 allMatches.add(m.group());
             }
 
+            // gets all mul(), do(), and don't() strings within the input
             while (enabledM.find()){
                 allEnabledMatches.add(enabledM.group());
             }
 
+            // multiplies all the mul() operations and adds them to the final result for part 1
             for (int j = 0; j < allMatches.toArray().length; j++){
                 String mult = allMatches.get(j);
                 int num1 = Integer.parseInt(mult.substring(mult.indexOf("(") + 1, mult.indexOf(",")));
@@ -35,11 +39,28 @@ public class Day3 {
                 totalResult += num1 * num2;
             }
 
+            // clears all the matches for the next row of input so the previous input isn't counted twice
             allMatches.clear();
-
         }
 
-        System.out.println(totalResult);
+        // loops through all finds, discounts those who follow a don't(), and counts those who follow a do()
+        boolean countOperation = true;
+        for (int i = 0; i < allEnabledMatches.toArray().length; i++){
+            if (allEnabledMatches.get(i).equals("don't()") && countOperation){
+                countOperation = false;
+            }
+            else if (allEnabledMatches.get(i).equals("do()") && !countOperation){
+                countOperation = true;
+            }
+            else if (countOperation && allEnabledMatches.get(i).contains("mul")){
+                String mult = allEnabledMatches.get(i);
+                int num1 = Integer.parseInt(mult.substring(mult.indexOf("(") + 1, mult.indexOf(",")));
+                int num2 = Integer.parseInt(mult.substring(mult.indexOf(",") + 1, mult.indexOf(")")));
+                enabledResult += num1 * num2;
+            }
+        }
+        System.out.println("Part 1: " + totalResult);
+        System.out.println("Part 2: " + enabledResult);
 
     }
 
