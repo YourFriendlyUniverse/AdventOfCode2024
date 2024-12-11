@@ -16,12 +16,15 @@ public class Day11 {
         }
 
         for (int i = 0; i < 75; i++) {
+            // Anything faster than ArrayList?
             ArrayList<Long> newStones = new ArrayList<>();
+            //Focus on this for loop here, code in here runs the most BY FAR
             for (int num = 0; num < stones.toArray().length; num++) {
                 if (stones.get(num) == 0) {
                     newStones.add(1L);
                 }
                 else if (((int) Math.log10(stones.get(num)) + 1) % 2 == 0) {
+                    //OPTIMIZE THIS PART (conversion to string, then back is not very healthy)
                     String number = stones.get(num) + "";
                     newStones.add(Long.parseLong(number.substring(0, (number.length() / 2))));
                     newStones.add(Long.parseLong(number.substring(number.length() / 2)));
@@ -31,9 +34,8 @@ public class Day11 {
                 }
             }
             stones.clear();
-            for (long num : newStones) {
-                stones.add(num);
-            }
+            //Is there a way to optimize moving the lists?
+            stones.addAll(newStones);
             System.out.println(i);
         }
 
