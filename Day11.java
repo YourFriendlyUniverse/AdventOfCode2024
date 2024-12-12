@@ -36,8 +36,8 @@ public class Day11 {
 //            stones.addAll(newStones);
 //            System.out.println(i);
 //        }
-
-        System.out.println("Part 1: " + (stones.toArray().length));
+//
+//        System.out.println("Part 1: " + (stones.toArray().length));
 
         // the key will denote the number on the stone(s), and the value will be how many of those stones exist
         HashMap<Long, Long> numOfStones = new HashMap<>();
@@ -52,7 +52,7 @@ public class Day11 {
 
         HashMap<Long, Long> newNumOfStones = new HashMap<>();
 
-        for (int i = 0; i < 25; i++){
+        for (int i = 0; i < 75; i++){
             numOfStones.replaceAll((k, v) -> {
                 if (k == 0){
                     replaceStonesNumber(newNumOfStones, 1, v);
@@ -71,8 +71,8 @@ public class Day11 {
             numOfStones = (HashMap<Long, Long>) newNumOfStones.clone();
             newNumOfStones.clear();
         }
-        System.out.println(numOfStones);
-        System.out.println(countNumOfStones(numOfStones));
+
+        System.out.println("Part 2: " + countNumOfStones(numOfStones));
 
     }
 
@@ -95,7 +95,7 @@ public class Day11 {
 
     public static void replaceStonesNumber(HashMap<Long, Long> stones, long num, long origAmount){
         if (stones.get(num) != null){
-            stones.put(num, stones.get(num) + 1);
+            stones.put(num, stones.get(num) + origAmount);
         }
         else{
             stones.put(num, origAmount);
