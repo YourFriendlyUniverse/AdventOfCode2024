@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -12,44 +13,82 @@ public class Day12 {
         int amount = 0;
 
         for (char l : alphabet){
-            ArrayList<String> onlyLetters = new ArrayList<>();
+            ArrayList<ArrayList<String>> onlyLetters = new ArrayList<>();
             for (String row : fileData){
-                String rowLetters = "";
+                ArrayList<String> rowLetters = new ArrayList<>();
                 for (int letter = 0; letter < row.length(); letter++){
                     if (row.charAt(letter) == l){
-                        rowLetters += l;
+                        rowLetters.add(l + "");
                     }
                     else{
-                        rowLetters += ".";
+                        rowLetters.add(".");
                     }
                 }
                 onlyLetters.add(rowLetters);
             }
 
-            HashMap<String, Integer> coords = new HashMap<>();
             int area = 0;
+            int perimeter = 0;
+            int groupNumber = 0;
 
             for (int row = 0; row < onlyLetters.toArray().length; row++){
-                for (int letter = 0; letter < onlyLetters.get(row).length(); letter++){
-                    if (onlyLetters.get(row).charAt(letter) != '.'){
-                        checkPerimeter(onlyLetters, coords, row, letter);
-                        area++;
+                for (int letter = 0; letter < onlyLetters.get(row).toArray().length; letter++){
+                    if (onlyLetters.get(row).get(letter).equals(l + "")){
+                        denoteGroup(onlyLetters, l, row, letter, groupNumber);
+                        groupNumber++;
                     }
                 }
             }
 
-            int perimeter = 0;
-            for (int i : coords.values()){
-                perimeter += i;
-            }
+            System.out.println(onlyLetters);
 
-            System.out.println(coords);
             amount += area * perimeter;
 
         }
 
         System.out.println(amount);
 
+    }
+
+    private static void denoteGroup(ArrayList<ArrayList<String>> onlyLetters, char l, int row, int letter, int groupNumber) {
+        System.out.println("G#: " + groupNumber);
+        onlyLetters.get(row).set(letter, l + "" + groupNumber);
+
+        boolean replace = true;
+        while(replace){
+            replace = false;
+            for (int y = 0; y < onlyLetters.toArray().length; y++){
+                for (int x = 0; x < onlyLetters.get(y).toArray().length; x++){
+                    System.out.println(onlyLetters.get(y).get(x).equals(l + "") && isNextToGroup(onlyLetters, x, y, groupNumber));
+                    if (onlyLetters.get(y).get(x).equals(l + "") && isNextToGroup(onlyLetters, x, y, groupNumber)){
+                        onlyLetters.get(y).set(x, l + "" + groupNumber);
+                        replace = true;
+                    }
+                }
+            }
+        }
+    }
+
+    private static boolean isNextToGroup(ArrayList<ArrayList<String>> onlyLetters, int x, int y, int groupNumber) {
+//        System.out.println(onlyLetters.get(y).get(x - 1).contains(groupNumber + ""));
+//        System.out.println(onlyLetters.get(y).get(x - 1));
+//        System.out.println("GROUP NUM: " + groupNumber);
+        if (x - 1 > 0 && onlyLetters.get(y).get(x - 1).contains(groupNumber + "")){
+            System.out.println("REPLACED ");
+            return true;
+        }
+        else if (x + 1 < onlyLetters.get(y).toArray().length - 1 && onlyLetters.get(y).get(x + 1).contains(groupNumber + "")){
+            return true;
+        }
+        else if (y - 1 > 0 && onlyLetters.get(y - 1).get(x).contains(groupNumber + "")){
+            return true;
+        }
+        else if (y + 1 < onlyLetters.toArray().length - 1 && onlyLetters.get(y + 1).get(x).contains(groupNumber + "")){
+            return true;
+        }
+        else{
+            return false;
+        }
     }
 
 
@@ -67,21 +106,6 @@ public class Day12 {
         }
         catch (FileNotFoundException e) {
             return fileData;
-        }
-    }
-
-    public static void checkPerimeter(ArrayList<String> letters, HashMap<String, Integer> coords, int row, int letter){
-        if (row - 1 < 0 || letters.get(row - 1).charAt(letter) == '.'){
-            coords.put((row - 1) + "," + letter, 1);
-        }
-        if (row + 1 > letters.toArray().length - 1 || letters.get(row + 1).charAt(letter) == '.'){
-            coords.put((row + 1) + "," + letter, 1);
-        }
-        if (letter - 1 < 0 || letters.get(row).charAt(letter - 1) == '.'){
-            coords.put((row) + "," + (letter - 1), 1);
-        }
-        if (letter + 1 > letters.getFirst().length() - 1 || letters.get(row).charAt(letter + 1) == '.'){
-            coords.put(row + "," + (letter + 1), 1);
         }
     }
 
