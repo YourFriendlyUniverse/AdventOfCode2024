@@ -1,8 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.security.KeyStore;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Scanner;
 
 public class Day12 {
@@ -29,37 +27,67 @@ public class Day12 {
 
             int area = 0;
             int perimeter = 0;
-            int groupNumber = 0;
+            int maxGroupNumber = 0;
 
             for (int row = 0; row < onlyLetters.toArray().length; row++){
                 for (int letter = 0; letter < onlyLetters.get(row).toArray().length; letter++){
                     if (onlyLetters.get(row).get(letter).equals(l + "")){
-                        denoteGroup(onlyLetters, l, row, letter, groupNumber);
-                        groupNumber++;
+                        denoteGroup(onlyLetters, l, row, letter, maxGroupNumber);
+                        maxGroupNumber++;
                     }
                 }
             }
 
-            System.out.println(onlyLetters);
 
-            amount += area * perimeter;
 
+            for (int groupNumber = 0; groupNumber <= maxGroupNumber; groupNumber++){
+                int y = 0;
+                for (ArrayList<String> i : onlyLetters){
+                    int x = 0;
+                    for (String letter : i){
+                        if (letter.equals(l + "" + groupNumber)) {
+                            area++;
+                            perimeter += getLetterPerimeter(onlyLetters, x, y);
+                        }
+                        x++;
+                    }
+                    y++;
+                }
+                amount += area * perimeter;
+                area = 0;
+                perimeter = 0;
+            }
         }
 
-        System.out.println(amount);
+        System.out.println("Part 1: " + amount);
 
     }
 
-    private static void denoteGroup(ArrayList<ArrayList<String>> onlyLetters, char l, int row, int letter, int groupNumber) {
-        System.out.println("G#: " + groupNumber);
-        onlyLetters.get(row).set(letter, l + "" + groupNumber);
+    private static int getLetterPerimeter(ArrayList<ArrayList<String>> onlyLetters, int x, int y) {
+        String letterGroupSearch = onlyLetters.get(y).get(x);
+        int perimeterAdd = 0;
+        if (x - 1 < 0 || !onlyLetters.get(y).get(x - 1).equals(letterGroupSearch)){
+            perimeterAdd++;
+        }
+        if (x + 1 > onlyLetters.get(y).toArray().length - 1 || !onlyLetters.get(y).get(x + 1).equals(letterGroupSearch)){
+            perimeterAdd++;
+        }
+        if (y - 1 < 0 || !onlyLetters.get(y - 1).get(x).equals(letterGroupSearch)){
+            perimeterAdd++;
+        }
+        if (y + 1 > onlyLetters.toArray().length - 1 || !onlyLetters.get(y + 1).get(x).equals(letterGroupSearch)){
+            perimeterAdd++;
+        }
+        return perimeterAdd;
+    }
 
+    private static void denoteGroup(ArrayList<ArrayList<String>> onlyLetters, char l, int row, int letter, int groupNumber) {
         boolean replace = true;
+        onlyLetters.get(row).set(letter, l + "" + groupNumber);
         while(replace){
             replace = false;
             for (int y = 0; y < onlyLetters.toArray().length; y++){
                 for (int x = 0; x < onlyLetters.get(y).toArray().length; x++){
-                    System.out.println(onlyLetters.get(y).get(x).equals(l + "") && isNextToGroup(onlyLetters, x, y, groupNumber));
                     if (onlyLetters.get(y).get(x).equals(l + "") && isNextToGroup(onlyLetters, x, y, groupNumber)){
                         onlyLetters.get(y).set(x, l + "" + groupNumber);
                         replace = true;
@@ -70,20 +98,16 @@ public class Day12 {
     }
 
     private static boolean isNextToGroup(ArrayList<ArrayList<String>> onlyLetters, int x, int y, int groupNumber) {
-//        System.out.println(onlyLetters.get(y).get(x - 1).contains(groupNumber + ""));
-//        System.out.println(onlyLetters.get(y).get(x - 1));
-//        System.out.println("GROUP NUM: " + groupNumber);
-        if (x - 1 > 0 && onlyLetters.get(y).get(x - 1).contains(groupNumber + "")){
-            System.out.println("REPLACED ");
+        if (x - 1 >= 0 && onlyLetters.get(y).get(x - 1).contains(groupNumber + "")){
             return true;
         }
-        else if (x + 1 < onlyLetters.get(y).toArray().length - 1 && onlyLetters.get(y).get(x + 1).contains(groupNumber + "")){
+        else if (x + 1 <= onlyLetters.get(y).toArray().length - 1 && onlyLetters.get(y).get(x + 1).contains(groupNumber + "")){
             return true;
         }
-        else if (y - 1 > 0 && onlyLetters.get(y - 1).get(x).contains(groupNumber + "")){
+        else if (y - 1 >= 0 && onlyLetters.get(y - 1).get(x).contains(groupNumber + "")){
             return true;
         }
-        else if (y + 1 < onlyLetters.toArray().length - 1 && onlyLetters.get(y + 1).get(x).contains(groupNumber + "")){
+        else if (y + 1 <= onlyLetters.toArray().length - 1 && onlyLetters.get(y + 1).get(x).contains(groupNumber + "")){
             return true;
         }
         else{
