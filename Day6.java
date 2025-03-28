@@ -10,198 +10,91 @@ public class Day6 {
         int[] currCoords = new int[]{0, 0};
         int direction = 1;
         // 1 is up, 2 is right, 3 is down, and 4 is left
+        int[] startingPos = new int[]{currCoords[0], currCoords[1]};
+        char[][] map = new char[fileData.size()][fileData.getFirst().length()];
 
-        for (int i = 0; i < fileData.toArray().length; i++){
+        for (int i = 0; i < fileData.size(); i++){
             if (fileData.get(i).contains("^")){
                 currCoords[0] = i;
                 currCoords[1] = fileData.get(i).indexOf("^");
             }
+            for (int j = 0; j < fileData.getFirst().length(); j++){
+                map[i][j] = fileData.get(i).charAt(j);
+            }
         }
 
-        int[] startingPos = new int[]{currCoords[0], currCoords[1]};
-
+//        char[][] origMap = new char[fileData.size()][fileData.getFirst().length()];
         boolean inBounds = true;
 
         while(inBounds){
+            map[currCoords[0]][currCoords[1]] = 'X';
 
-            String row = fileData.get(currCoords[0]);
-            fileData.set(currCoords[0], row.substring(0, currCoords[1]) + "X" + row.substring(currCoords[1] + 1));
+            inBounds = boundsCheck(currCoords, direction, map);
+            direction = checkObstruction(currCoords, direction, map);
+            currCoords = move(currCoords, direction);
 
-            int[] result = move(direction, currCoords, fileData);
-            currCoords = new int[]{result[0], result[1]};
-            direction = result[2];
 
-            switch (direction){
-                case 1 -> {
-                    if (currCoords[0] - 1 < 0){
-                        inBounds = false;
-                    }
-                }
-                case 2 -> {
-                    if (currCoords[1] + 1 > row.length() - 1){
-                        inBounds = false;
-                    }
-                }
-                case 3 -> {
-                    if (currCoords[0] + 1 > fileData.toArray().length - 1) {
-                        inBounds = false;
-                    }
-                }
-                case 4 -> {
-                    if (currCoords[1] - 1 < 0){
-                        inBounds = false;
-                    }
-                }
-            }
         }
-        String row = fileData.get(currCoords[0]);
-        fileData.set(currCoords[0], row.substring(0, currCoords[1]) + "X" + row.substring(currCoords[1] + 1));
-
         int spaces = 0;
-        ArrayList<Integer[]> potentialObstructions = new ArrayList<Integer[]>();
-        char[][] map = new char[fileData.size()][fileData.getFirst().length()];
-        char[][] origMap = new char[fileData.size()][fileData.getFirst().length()];
 
-        for (int r = 0; r < fileData.size(); r++){
-            for (int c = 0; c < fileData.get(r).length(); c++){
-                if (fileData.get(r).charAt(c) == 'X'){
+        for (char[] row : map){
+            for (char tile : row){
+                if (tile == 'X'){
                     spaces++;
-                    potentialObstructions.add(new Integer[]{r, c});
                 }
-                map[r][c] = fileData.get(r).charAt(c);
-                origMap[r][c] = fileData.get(r).charAt(c);
+                System.out.print(tile);
             }
+            System.out.println();
         }
 
         System.out.println("Part 1: " + spaces);
-        for (Integer[] cord : potentialObstructions){
-            System.out.println(cord[0] +", ");
-        }
 
-        boolean notLooping = true;
-        int successfulLoops = 0;
-        currCoords = new int[]{startingPos[0], startingPos[1]};
-        direction = 1;
-        inBounds = true;
-        for (Integer[] obstruction : potentialObstructions){
-            map = refreshMap(origMap);
-            map[obstruction[0]][obstruction[1]] = '#';
-
-            while (notLooping && inBounds){
-                if (map[currCoords[0]][currCoords[1]] == '1'){
-                    map[currCoords[0]][currCoords[1]] = '2';
-                }
-                else if (map[currCoords[0]][currCoords[1]] == '3'){
-                    notLooping = false;
-                    successfulLoops++;
-                }
-                else {
-                    map[currCoords[0]][currCoords[1]] = '1';
-                }
-
-                System.out.println(currCoords[0] + ", " + currCoords[1]);
-
-                switch (direction){
-                    case 1 -> {
-                        if (currCoords[0] - 1 < 0){
-                            inBounds = false;
-                        }
-                        else if (map[currCoords[0] - 1][currCoords[1]] == '#') {
-                            direction++;
-                        }
-                        else{
-                            currCoords[0]--;
-                        }
-                    }
-                    case 2 -> {
-                        if (currCoords[1] + 1 > map.length - 1){
-                            inBounds = false;
-                        }
-                        else if (map[currCoords[0]][currCoords[1] + 1] == '#') {
-                            direction++;
-                        }
-                        else{
-                            currCoords[1]++;
-                        }
-                    }
-                    case 3 -> {
-                        if (currCoords[0] + 1 > map[0].length - 1) {
-                            inBounds = false;
-                        }
-                        else if (map[currCoords[0] + 1][currCoords[1]] == '#') {
-                            direction++;
-                        }
-                        else{
-                            currCoords[0]++;
-                        }
-                    }
-                    case 4 -> {
-                        if (currCoords[1] - 1 < 0){
-                            inBounds = false;
-                        }
-                        else if (map[currCoords[0]][currCoords[1] - 1] == '#') {
-                            direction = 1;
-                        }
-                        else{
-                            currCoords[1]--;
-                        }
-                    }
-                }
-            }
-        }
-
-        System.out.println("Part 2: " + successfulLoops);
+        System.out.println("Part 2: ");
 
     }
 
-    public static char[][] refreshMap(char[][] m){
-        char[][] newMap = new char[m.length][m[0].length];
-        for (int r = 0; r < m.length; r++){
-            for (int c = 0; c < m[0].length; c++){
-                newMap[r][c] = m[r][c];
-            }
+    private static boolean boundsCheck(int[] cords, int d, char[][] m) {
+        if (d == 1 && cords[0] - 1 < 0){
+            return false;
         }
-        return newMap;
+        else if (d == 2 && cords[1] + 1 >= m[0].length){
+            return false;
+        }
+        else if (d == 3 && cords[0] + 1 >= m.length){
+            return false;
+        }
+        else if (d == 4 && cords[1] - 1 < 0){
+            return false;
+        }
+        else {
+            return true;
+        }
     }
 
-    public static int[] move(int d, int[] coords, ArrayList<String> fData){
+    private static int checkObstruction(int[] cords, int d, char[][] m) {
+        if (d == 1 && m[cords[0] - 1][cords[1]] == '#'){
+            d++;
+        }
+        else if (d == 2 && m[cords[0]][cords[1] + 1] == '#'){
+            d++;
+        }
+        else if (d == 3 && m[cords[0] + 1][cords[1]] == '#'){
+            d++;
+        }
+        else if (d == 4 && m[cords[0]][cords[1] - 1] == '#'){
+            d = 1;
+        }
+        return d;
+    }
+
+    public static int[] move(int[] cords, int d){
         switch (d){
-
-            case 1 -> {
-                if (fData.get(coords[0] - 1).substring(coords[1], coords[1] + 1).equals("#")) {
-                    d++;
-                }
-                else{
-                    coords[0]--;
-                }
-
-            }
-            case 2 -> {
-                if (fData.get(coords[0]).substring(coords[1] + 1, coords[1] + 2).equals("#")) {
-                    d++;
-                }
-                else{
-                    coords[1]++;
-                }
-            }
-            case 3 -> {
-                if (fData.get(coords[0] + 1).substring(coords[1], coords[1] + 1).equals("#")) {
-                    d++;
-                }
-                else{
-                    coords[0]++;
-                }
-            }
-            case 4 -> {
-                if (fData.get(coords[0]).substring(coords[1] - 1, coords[1]).equals("#")) {
-                    d = 1;
-                }
-                else{
-                    coords[1]--;
-                }
-            }
+            case (1) -> cords[0]--;
+            case (2) -> cords[1]++;
+            case (3) -> cords[0]++;
+            case (4) -> cords[1]--;
         }
-        return new int[]{coords[0], coords[1], d};
+        return new int[]{cords[0], cords[1]};
     }
 
 
