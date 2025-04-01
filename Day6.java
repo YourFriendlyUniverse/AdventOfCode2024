@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -10,7 +11,7 @@ public class Day6 {
         int[] currCoords = new int[]{0, 0};
         int direction = 1;
         // 1 is up, 2 is right, 3 is down, and 4 is left
-        int[] startingPos = new int[]{currCoords[0], currCoords[1]};
+
         char[][] map = new char[fileData.size()][fileData.getFirst().length()];
 
         for (int i = 0; i < fileData.size(); i++){
@@ -23,47 +24,95 @@ public class Day6 {
             }
         }
 
-//        char[][] origMap = new char[fileData.size()][fileData.getFirst().length()];
+        int[] startingPos = new int[]{currCoords[0], currCoords[1]};
+        char[][] origMap = refreshMap(map);
         boolean inBounds = true;
 
         while(inBounds){
             map[currCoords[0]][currCoords[1]] = 'X';
 
-            inBounds = boundsCheck(currCoords, direction, map);
             direction = checkObstruction(currCoords, direction, map);
             currCoords = move(currCoords, direction);
-
+            inBounds = boundsCheck(currCoords, map);
 
         }
+        map[currCoords[0]][currCoords[1]] = 'X';
         int spaces = 0;
+        ArrayList<Integer[]> potentialObstructions = new ArrayList<Integer[]>();
 
-        for (char[] row : map){
-            for (char tile : row){
-                if (tile == 'X'){
+        for (int row = 0; row < map.length; row++){
+            for (int col = 0; col < map[row].length; col++){
+                if (map[row][col] == 'X'){
                     spaces++;
+                    potentialObstructions.add(new Integer[]{row, col});
                 }
-                System.out.print(tile);
+//                System.out.print(tile);
             }
-            System.out.println();
+//            System.out.println();
         }
 
         System.out.println("Part 1: " + spaces);
 
-        System.out.println("Part 2: ");
+        int loops = 0;
+
+        for (Integer[] obstruction : potentialObstructions){
+            map = refreshMap(origMap);
+            map[obstruction[0]][obstruction[1]] = '#';
+
+            boolean inLoop = false;
+            inBounds = true;
+            currCoords = new int[]{startingPos[0], startingPos[1]};
+            direction = 1;
+
+            while (inBounds && !inLoop){
+                if (map[currCoords[0]][currCoords[1]] == '1'){
+                    map[currCoords[0]][currCoords[1]] = '2';
+                }
+                else if (map[currCoords[0]][currCoords[1]] == '2'){
+                    map[currCoords[0]][currCoords[1]] = '3';
+                }
+                else if(map[currCoords[0]][currCoords[1]] == '3'){
+                    inLoop = true;
+                    loops++;
+                }
+                else{
+                    map[currCoords[0]][currCoords[1]] = '1';
+                }
+
+                if (!inLoop){
+                    direction = checkObstruction(currCoords, direction, map);
+                    currCoords = move(currCoords, direction);
+                    inBounds = boundsCheck(currCoords, map);
+                }
+            }
+
+        }
+
+        System.out.println("Part 2: " + loops);
 
     }
 
-    private static boolean boundsCheck(int[] cords, int d, char[][] m) {
-        if (d == 1 && cords[0] - 1 < 0){
+    private static char[][] refreshMap (char[][] m){
+        char[][] newMap = new char[m.length][m[0].length];
+        for (int r = 0; r < m.length; r++){
+            for (int c = 0; c < m[0].length; c++){
+                newMap[r][c] = m[r][c];
+            }
+        }
+        return newMap;
+    }
+
+    private static boolean boundsCheck(int[] cords, char[][] m) {
+        if (cords[0] - 1 < 0){
             return false;
         }
-        else if (d == 2 && cords[1] + 1 >= m[0].length){
+        else if (cords[1] + 1 >= m[0].length){
             return false;
         }
-        else if (d == 3 && cords[0] + 1 >= m.length){
+        else if (cords[0] + 1 >= m.length){
             return false;
         }
-        else if (d == 4 && cords[1] - 1 < 0){
+        else if (cords[1] - 1 < 0){
             return false;
         }
         else {
