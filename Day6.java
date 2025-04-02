@@ -32,8 +32,8 @@ public class Day6 {
             map[currCoords[0]][currCoords[1]] = 'X';
 
             direction = checkObstruction(currCoords, direction, map);
-            currCoords = move(currCoords, direction);
-            inBounds = boundsCheck(currCoords, map);
+            currCoords = move(currCoords, direction, map);
+            inBounds = boundsCheck(currCoords, direction, map);
 
         }
         map[currCoords[0]][currCoords[1]] = 'X';
@@ -46,9 +46,9 @@ public class Day6 {
                     spaces++;
                     potentialObstructions.add(new Integer[]{row, col});
                 }
-//                System.out.print(tile);
+            //    System.out.print(map[row][col]);
             }
-//            System.out.println();
+        //    System.out.println();
         }
 
         System.out.println("Part 1: " + spaces);
@@ -65,27 +65,29 @@ public class Day6 {
             direction = 1;
 
             while (inBounds && !inLoop){
-                if (map[currCoords[0]][currCoords[1]] == '1'){
+
+                char currChar = map[currCoords[0]][currCoords[1]];
+
+                if (currChar == '1'){
                     map[currCoords[0]][currCoords[1]] = '2';
                 }
-                else if (map[currCoords[0]][currCoords[1]] == '2'){
+                else if (currChar == '2'){
                     map[currCoords[0]][currCoords[1]] = '3';
                 }
-                else if(map[currCoords[0]][currCoords[1]] == '3'){
+                else if(currChar == '3'){
                     inLoop = true;
                     loops++;
                 }
-                else{
+                else if (currChar == '.'){
                     map[currCoords[0]][currCoords[1]] = '1';
                 }
 
                 if (!inLoop){
                     direction = checkObstruction(currCoords, direction, map);
-                    currCoords = move(currCoords, direction);
-                    inBounds = boundsCheck(currCoords, map);
+                    currCoords = move(currCoords, direction, map);
+                    inBounds = boundsCheck(currCoords, direction, map);
                 }
             }
-
         }
 
         System.out.println("Part 2: " + loops);
@@ -102,17 +104,17 @@ public class Day6 {
         return newMap;
     }
 
-    private static boolean boundsCheck(int[] cords, char[][] m) {
-        if (cords[0] - 1 < 0){
+    private static boolean boundsCheck(int[] cords, int d, char[][] m) {
+        if (d == 1 && cords[0] - 1 < 0){
             return false;
         }
-        else if (cords[1] + 1 >= m[0].length){
+        else if (d == 2 && cords[1] + 1 >= m[0].length){
             return false;
         }
-        else if (cords[0] + 1 >= m.length){
+        else if (d == 3 && cords[0] + 1 >= m.length){
             return false;
         }
-        else if (cords[1] - 1 < 0){
+        else if (d == 4 && cords[1] - 1 < 0){
             return false;
         }
         else {
@@ -122,26 +124,42 @@ public class Day6 {
 
     private static int checkObstruction(int[] cords, int d, char[][] m) {
         if (d == 1 && m[cords[0] - 1][cords[1]] == '#'){
-            d++;
+            return d + 1;
         }
         else if (d == 2 && m[cords[0]][cords[1] + 1] == '#'){
-            d++;
+            return d + 1;
         }
         else if (d == 3 && m[cords[0] + 1][cords[1]] == '#'){
-            d++;
+            return d + 1;
         }
         else if (d == 4 && m[cords[0]][cords[1] - 1] == '#'){
-            d = 1;
+            return 1;
         }
         return d;
     }
 
-    public static int[] move(int[] cords, int d){
+    public static int[] move(int[] cords, int d, char[][] m){
         switch (d){
-            case (1) -> cords[0]--;
-            case (2) -> cords[1]++;
-            case (3) -> cords[0]++;
-            case (4) -> cords[1]--;
+            case (1) -> {
+                if (cords[0] - 1 >= 0 && m[cords[0] - 1][cords[1]] != '#'){
+                    cords[0]--;
+                }
+            }
+            case (2) -> {
+                if (cords[1] + 1 < m[0].length && m[cords[0]][cords[1] + 1] != '#'){
+                    cords[1]++;
+                }
+            }
+            case (3) -> {
+                if (cords[0] + 1 < m.length && m[cords[0] + 1][cords[1]] != '#'){
+                    cords[0]++;
+                }
+            }
+            case (4) -> {
+                if (cords[1] - 1 >= 0 && m[cords[0]][cords[1] - 1] != '#'){
+                    cords[1]--;
+                }
+            }
         }
         return new int[]{cords[0], cords[1]};
     }
