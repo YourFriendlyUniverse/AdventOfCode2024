@@ -9,9 +9,9 @@ public class Day05 {
         ArrayList<String> fileData = getFileData("src/InputFile");
         ArrayList<String> rules = new ArrayList<>();
         ArrayList<String> pageNumbers = new ArrayList<>();
-        ArrayList<String> incorrectLists = new ArrayList<>();
 
         int partOneAnswer = 0;
+        int partTwoAnswer = 0;
 
         // separates input into rules and the numbers
         for (String i : fileData){
@@ -55,12 +55,21 @@ public class Day05 {
                 partOneAnswer += Integer.parseInt(nums[nums.length / 2]);
             }
             else{
-                incorrectLists.add(i);
+                // reorders list to make it valid
+                for (int j = 0; j < nums.length; j++){
+                    for (String rule : rules){
+                        if (rule.contains("|" + nums[j]) && ruleApplies(rule, nums) && !showsUpBefore(nums, rule, j)){
+                            nums = putNumBefore(nums, rule, j);
+                            j = 0;
+                        }
+                    }
+                }
+                partTwoAnswer += Integer.parseInt(nums[nums.length / 2]);
             }
         }
 
         System.out.println("Part 1: " + partOneAnswer);
-
+        System.out.println("Part 2: " + partTwoAnswer);
     }
 
 
@@ -81,7 +90,6 @@ public class Day05 {
         }
     }
 
-    // checks if the rule applies
     public static boolean ruleApplies(String rule, String[] nums){
         boolean hasFirstNum = false;
         boolean hasSecondNum = false;
@@ -101,4 +109,42 @@ public class Day05 {
         return hasFirstNum && hasSecondNum;
     }
 
+    public static String[] putNumBefore(String[] nums, String rule, int idx){
+        String[] reorderedNums = new String[nums.length];
+        String beforeNum = rule.substring(0, rule.indexOf("|"));
+        for (int i = 0; i < idx; i++){
+            reorderedNums[i] = nums[i];
+        }
+        boolean skippedIdx = false;
+        if (nums[idx + 1].equals(beforeNum)){
+            skippedIdx = true;
+        }        
+        String temp = nums[idx];
+        reorderedNums[idx] = beforeNum;
+        reorderedNums[idx + 1] = temp;
+
+        for (int i = idx + 1; i < nums.length; i++){
+            if (!skippedIdx && !nums[i].equals(beforeNum)){
+                 reorderedNums[i + 1] = nums[i];
+            }
+            else if (nums[i].equals(beforeNum)){
+                skippedIdx = true;
+            }
+            else{
+                reorderedNums[i] = nums[i];
+            }
+        }
+
+        return reorderedNums;
+    }
+
+    public static boolean showsUpBefore(String[] nums, String rule, int idx){
+        String beforeNum = rule.substring(0, rule.indexOf("|"));
+        for (int i = 0; i < idx; i++){
+            if (nums[i].equals(beforeNum)){
+                return true;
+            }
+        }
+        return false;
+    }
 }
