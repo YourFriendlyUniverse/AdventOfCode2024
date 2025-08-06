@@ -6,6 +6,7 @@ import java.util.Scanner;
 public class Day07 {
     public static void main(String[] args) {
         long totalCorrect = 0;
+        long totalCorrectPart2 = 0;
 
         ArrayList<String> fileData = getFileData("src/InputFile");
         for (String l : fileData){
@@ -15,9 +16,14 @@ public class Day07 {
             if (solve(nums[0], nums, 1, total)){
                 totalCorrect += total;
             }
+            else if (solvePart2(nums[0], nums, 1, total)){
+                totalCorrectPart2 += total;
+            }
         }
 
+        totalCorrectPart2 += totalCorrect;
         System.out.println("\nPart 1: " + totalCorrect);
+        System.out.println("Part 2: " + totalCorrectPart2);
     }
 
     public static boolean solve(long currTotal, int[] nums, int idx, long solution){
@@ -33,7 +39,22 @@ public class Day07 {
         else{
             return(solve(currTotal + nums[idx], nums, idx + 1, solution) || solve(currTotal * nums[idx], nums, idx + 1, solution));
         }
+    }
 
+    public static boolean solvePart2(long currTotal, int[] nums, int idx, long solution){
+        if (idx == nums.length){
+            if (currTotal == solution){
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+
+        else{
+            long concatenation = Long.parseLong(currTotal + "" + nums[idx]);
+            return(solvePart2(currTotal + nums[idx], nums, idx + 1, solution) || solvePart2(currTotal * nums[idx], nums, idx + 1, solution) || solvePart2(concatenation, nums, idx + 1, solution));
+        }
     }
 
     public static int[] getNums(String line){
