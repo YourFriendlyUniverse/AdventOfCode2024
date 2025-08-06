@@ -3,32 +3,37 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class Day7 {
+public class Day07 {
     public static void main(String[] args) {
-        int totalCorrect = 0;
+        long totalCorrect = 0;
 
         ArrayList<String> fileData = getFileData("src/InputFile");
         for (String l : fileData){
             int[] nums = getNums(l);
-            int total = getTotal(l);
-            int currTotal = nums[0];
+            long total = getTotal(l);
 
-            for (int i = 1; i < nums.length; i++){
-                if(currTotal * nums[i] > total){
-                    currTotal += nums[i];
-                }
-                else{
-                    currTotal *= nums[i];
-                }
-            }
-
-            if (currTotal == total){
-                System.out.println(total);
+            if (solve(nums[0], nums, 1, total)){
                 totalCorrect += total;
             }
         }
 
-        System.out.println("Part 1: " + totalCorrect);
+        System.out.println("\nPart 1: " + totalCorrect);
+    }
+
+    public static boolean solve(long currTotal, int[] nums, int idx, long solution){
+        if (idx == nums.length){
+            if (currTotal == solution){
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+
+        else{
+            return(solve(currTotal + nums[idx], nums, idx + 1, solution) || solve(currTotal * nums[idx], nums, idx + 1, solution));
+        }
+
     }
 
     public static int[] getNums(String line){
@@ -42,8 +47,8 @@ public class Day7 {
         return nums;
     }
 
-    public static int getTotal(String line){
-        return Integer.parseInt(line.substring(0, line.indexOf(":")));
+    public static long getTotal(String line){
+        return Long.parseLong(line.substring(0, line.indexOf(":")));
     }
 
     public static ArrayList<String> getFileData(String fileName) {
